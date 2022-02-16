@@ -94,7 +94,7 @@ struct ColorCyclingRectangle: View {
             ForEach(0..<steps) { value in
                 Rectangle()
                     .inset(by: Double(value))
-                    .strokeBorder(.red, lineWidth: 1)
+                    .strokeBorder(color(for: value), lineWidth: 1)
             }
         }
     }
@@ -111,18 +111,15 @@ struct ColorCyclingRectangle: View {
 }
 
 struct ContentView: View {
-    @State private var strokeThickness = 2.0
+    @State private var amount = 0.5
     
     var body: some View {
         VStack {
-            Arrow()
-                .stroke(.red, style: StrokeStyle(lineWidth: strokeThickness, lineCap: .round, lineJoin: .round))
+            ColorCyclingRectangle(amount: amount)
                 .frame(width: 300, height: 300)
-                .onTapGesture {
-                    withAnimation {
-                        strokeThickness = Double.random(in: 1...15)
-                    }
-                }
+            
+            Slider(value: $amount)
+                .padding([.horizontal, .top])
         }
     }
 }
