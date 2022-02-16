@@ -28,6 +28,27 @@ struct Flower: Shape {
     }
 }
 
+struct Arrow: Shape {
+    let arrowBodyInset = 115.0
+    let arrowHeadHeight = 100.0
+    let arrowHeadInset = 50.0
+    
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        
+        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.minX + arrowHeadInset, y: rect.minY + arrowHeadHeight))
+        path.addLine(to: CGPoint(x: rect.minX + arrowBodyInset, y: rect.minY + arrowHeadHeight))
+        path.addLine(to: CGPoint(x: rect.minX + arrowBodyInset, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.maxX - arrowBodyInset, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.maxX - arrowBodyInset, y: rect.minY + arrowHeadHeight))
+        path.addLine(to: CGPoint(x: rect.maxX - arrowHeadInset, y: rect.minY + arrowHeadHeight))
+        path.addLine(to: CGPoint(x: rect.midX, y: rect.minY))
+
+        return path
+    }
+}
+
 struct ColorCyclingCirlce: View {
     var amount = 0.0
     var steps = 100
@@ -64,34 +85,45 @@ struct ColorCyclingCirlce: View {
     }
 }
 
+struct ColorCyclingRectangle: View {
+    var amount = 0.0
+    let steps = 100
+    
+    var body: some View {
+        ZStack {
+            ForEach(0..<steps) { value in
+                Rectangle()
+                    .inset(by: Double(value))
+                    .strokeBorder(.red, lineWidth: 1)
+            }
+        }
+    }
+    
+    func color(for value: Int) -> Color {
+        var targetHue = Double(value) / Double(steps) + amount
+        
+        if targetHue > 1 {
+            targetHue -= 1
+        }
+        
+        return Color(hue: targetHue, saturation: 1, brightness: 1)
+    }
+}
+
 struct ContentView: View {
-    @State private var colorCycle = 0.0
-    
-    
-    //    @State private var petalOffset = -20.0
-    //    @State private var petalWidth = 100.0
+    @State private var strokeThickness = 2.0
     
     var body: some View {
         VStack {
-            ColorCyclingCirlce(amount: colorCycle)
+            Arrow()
+                .stroke(.red, style: StrokeStyle(lineWidth: strokeThickness, lineCap: .round, lineJoin: .round))
                 .frame(width: 300, height: 300)
-            
-            Slider(value: $colorCycle)
+                .onTapGesture {
+                    withAnimation {
+                        strokeThickness = Double.random(in: 1...15)
+                    }
+                }
         }
-        
-        
-        //        VStack {
-        //            Flower(petalOffset: petalOffset, petalWidth: petalWidth)
-        //                .fill(.red, style: FillStyle(eoFill: true))
-        //
-        //            Text("Offset")
-        //            Slider(value: $petalOffset, in: -40...40)
-        //                .padding([.horizontal, .bottom])
-        //
-        //            Text("Width")
-        //            Slider(value: $petalWidth, in: 0...100)
-        //                .padding(.horizontal)
-        //        }
     }
 }
 
